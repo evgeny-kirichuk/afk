@@ -1,0 +1,13 @@
+{
+  "name": "@afk/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "afk": "./src/index.ts"
+  },
+  "dependencies": {
+    "@afk/core": "workspace:*",
+    "citty": "latest"
+  }
+}

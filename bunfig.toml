@@ -1,0 +1,7 @@
+[install]
+exact = true
+
+[test]
+timeout = 15000
+coverage = true
+coverageReporter = ["text", "lcov"]

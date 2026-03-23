@@ -32,3 +32,11 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# AFK runtime dirs
+afk/tracks/
+afk/graph/
+afk/archive/
+afk/repo-map.json
+afk/inbox/.processed/
+.afk-worktrees/
