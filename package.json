@@ -1,12 +1,21 @@
 {
   "name": "afk",
-  "module": "index.ts",
-  "type": "module",
   "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun build ./packages/cli/src/index.ts --compile --outfile afk --production --bytecode",
+    "typecheck": "tsc --noEmit",
+    "lint": "bunx biome check .",
+    "format": "bunx biome format --write .",
+    "test": "bun test"
   },
-  "peerDependencies": {
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@biomejs/biome": "latest",
+    "@tsconfig/bun": "latest",
     "typescript": "^5"
   }
 }
