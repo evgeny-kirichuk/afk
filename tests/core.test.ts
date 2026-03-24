@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { HeartbeatSchema, SessionConfigSchema, StepOutputSchema } from "@afk/core";
+import { DecisionEntrySchema, HeartbeatSchema, SessionConfigSchema, StepOutputSchema } from "@afk/core";
 
 const VALID_HEARTBEAT = {
   timestamp: "2026-03-15T03:42:00Z",
@@ -57,5 +57,50 @@ describe("SessionConfigSchema", () => {
       session: { name: "test", tracks: 25, autonomy: "full", started_at: null, status: "idle" },
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("Zod 4 compatibility", () => {
+  test(".passthrough() preserves extra keys on SessionConfigSchema", () => {
+    const result = SessionConfigSchema.safeParse({
+      session: { name: "test", tracks: 1, autonomy: "full", started_at: null, status: "idle" },
+      git: { local_changes: "stash", branch_prefix: "afk/" },
+      autonomy_modes: { full: { auto_approve: true } },
+    });
+    expect(result.success).toBe(true);
+    expect((result.data as any).git).toEqual({ local_changes: "stash", branch_prefix: "afk/" });
+    expect((result.data as any).autonomy_modes).toEqual({ full: { auto_approve: true } });
+  });
+
+  test(".safeParse() error shape has .format() and .issues", () => {
+    const result = SessionConfigSchema.safeParse({ session: { name: 123 } });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(typeof result.error.format).toBe("function");
+      expect(Array.isArray(result.error.issues)).toBe(true);
+    }
+  });
+
+  test(".safeParse() success shape has .success and .data", () => {
+    const result = SessionConfigSchema.safeParse({
+      session: { name: "test", tracks: 1, autonomy: "full", started_at: null, status: "idle" },
+    });
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
+  });
+
+  test("DecisionEntrySchema.passthrough() preserves extra fields", () => {
+    const result = DecisionEntrySchema.safeParse({
+      ts: "2026-03-15T03:42:00Z",
+      type: "approval",
+      task: "auth-flow",
+      custom_field: "extra-data",
+      priority: 5,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect((result.data as any).custom_field).toBe("extra-data");
+      expect((result.data as any).priority).toBe(5);
+    }
   });
 });
