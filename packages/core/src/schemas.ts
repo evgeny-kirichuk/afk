@@ -111,3 +111,9 @@ export const SessionConfigSchema = z
     loop: LoopConfigSchema.parse(data.loop ?? {}),
     workflow: WorkflowConfigSchema.parse(data.workflow ?? {}),
   }));
+
+// TODO Phase 2: Add Zod schemas for sections currently passed through unvalidated:
+// - autonomy_modes: Record<AutonomyMode, AutonomyModeConfig> (see types.ts)
+// - git: { local_changes, branch_prefix, worktree_root, base_branch }
+// - communication: (Telegram, Linear notification settings)
+// - linear: (Linear integration config)
