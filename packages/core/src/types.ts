@@ -147,6 +147,39 @@ export interface IntakeEnvelope {
   received_at: string;
 }
 
+// ── Provider ──────────────────────────────────────────────────────────────────
+
+export type ProviderName = "claude" | "codex" | "gemini" | "copilot";
+
+export interface ProviderConfig {
+  binary: string;
+  available: boolean;
+  version?: string;
+}
+
+export interface ProviderInvocation {
+  binary: string;
+  args: string[];
+  cwd: string;
+  env: Record<string, string>;
+  outputFormat: "json" | "stream-json" | "text";
+}
+
+export interface TokenBreakdown {
+  input: number;
+  output: number;
+  cached: number;           // tokens served from cache (codex, gemini)
+  thinking: number;         // reasoning/thought tokens (gemini "thoughts", claude extended thinking)
+  total: number;            // sum of all tokens
+  premiumRequests: number;  // copilot-specific: premium model requests consumed
+}
+
+export interface ProviderSessionInfo {
+  sessionId: string | null;
+  tokensUsed: number; // operational telemetry: context window consumption, not billing
+  tokenBreakdown: TokenBreakdown;
+}
+
 // ── Config ─────────────────────────────────────────────────────────────────────
 
 export interface WorkflowStepConfig {

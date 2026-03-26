@@ -7,6 +7,7 @@ const main = defineCommand({
     init: () => import("./commands/init.ts").then((m) => m.default),
     start: () => import("./commands/start.ts").then((m) => m.default),
     status: () => import("./commands/status.ts").then((m) => m.default),
+    "run-step": () => import("./commands/run-step.ts").then((m) => m.default),
   },
 });
 
