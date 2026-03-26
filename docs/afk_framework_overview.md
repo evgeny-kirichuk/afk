@@ -1409,54 +1409,77 @@ AFK doesn't call provider APIs. It spawns `claude`, `codex`, `gemini` as child p
 
 ### Configuration (`~/.afk/config.yaml`)
 
+> **Note**: AFK never handles API keys — the CLIs manage their own auth via user subscriptions.
+
 ```yaml
 providers:
   claude:
     binary: claude
-    invoke: "claude --session --print"
+    invoke: "claude -p"
     flags:
-      dangerously_skip_permissions: true
+      system_prompt: "--append-system-prompt"
+      output_format: "--output-format json"
+      auto_approve: "--dangerously-skip-permissions"
+      resume: "--resume"
+      add_dir: "--add-dir"
     quota_patterns:
       - "rate limit"
       - "429"
       - "quota exceeded"
       - "too many requests"
     exit_codes:
-      quota: [75]
       crash: [1, 137]
-    available: true
 
   codex:
     binary: codex
-    invoke: "codex --quiet"
+    invoke: "codex exec"
     flags:
-      approval_mode: full-auto
+      output_format: "--json"
+      auto_approve: "--full-auto"
+      working_dir: "-C"
+      add_dir: "--add-dir"
     quota_patterns:
       - "rate limit"
       - "429"
     exit_codes:
-      quota: [1]
       crash: [1, 137]
-    available: true
 
   gemini:
     binary: gemini
-    invoke: "gemini"
-    flags: {}
+    invoke: "gemini -p"
+    flags:
+      output_format: "-o json"
+      auto_approve: "-y"
+      resume: "--resume"
+      add_dir: "--include-directories"
     quota_patterns:
       - "RESOURCE_EXHAUSTED"
       - "429"
     exit_codes:
-      quota: []
       crash: [1]
-    available: false
+
+  copilot:
+    binary: copilot
+    invoke: "copilot -p"
+    flags:
+      output_format: "--output-format json"
+      auto_approve: "--yolo"
+      autopilot: "--autopilot --no-ask-user"
+      max_turns: "--max-autopilot-continues"
+      resume: "--resume="
+      add_dir: "--add-dir"
+    quota_patterns:
+      - "rate limit"
+      - "429"
+    exit_codes:
+      crash: [1, 137]
 
 # Model catalog — ONE place to update when new models release
 models:
   claude:
-    frontier: claude-opus-4
-    standard: claude-sonnet-4
-    fast: claude-haiku-4
+    frontier: claude-opus-4-6
+    standard: claude-sonnet-4-6
+    fast: claude-haiku-4-5
   codex:
     frontier: o3-pro
     standard: o3
@@ -1465,15 +1488,19 @@ models:
     frontier: gemini-2.5-pro
     standard: gemini-2.5-flash
     fast: gemini-2.5-flash-lite
+  copilot:
+    frontier: claude-opus-4-6
+    standard: claude-sonnet-4-6
+    fast: gpt-4.1
 
 # Tier preferences — just provider order, resolved via catalog
 tiers:
   frontier:
-    preference: [claude, codex, gemini]
+    preference: [claude, codex, gemini, copilot]
   standard:
-    preference: [claude, codex, gemini]
+    preference: [claude, codex, gemini, copilot]
   fast:
-    preference: [codex, claude, gemini]
+    preference: [codex, claude, gemini, copilot]
 
 # Backoff configuration
 backoff:
