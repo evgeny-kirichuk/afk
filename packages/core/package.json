@@ -6,6 +6,7 @@
   "main": "./src/index.ts",
   "dependencies": {
     "c12": "latest",
+    "xstate": "5.30.0",
     "zod": "^4"
   }
 }

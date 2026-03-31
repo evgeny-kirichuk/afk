@@ -103,6 +103,12 @@ CREATE TABLE IF NOT EXISTS events (
   FOREIGN KEY (session_id) REFERENCES sessions(id)
 );
 
+CREATE TABLE IF NOT EXISTS snapshots (
+  machine_id TEXT PRIMARY KEY,
+  snapshot   TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_sessions_track ON sessions(track_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_task ON sessions(task_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_parent ON sessions(parent_session_id);
@@ -231,7 +237,7 @@ export class SessionStore {
       .all({ $session_id: sessionId }) as MessageRow[];
   }
 
-  getPendingHumanMessages(sessionId: string): MessageRow[] {
+  getHumanMessages(sessionId: string): MessageRow[] {
     return this.db
       .query("SELECT * FROM messages WHERE session_id = $session_id AND role = 'human' ORDER BY created_at, id")
       .all({ $session_id: sessionId }) as MessageRow[];
@@ -279,6 +285,36 @@ export class SessionStore {
     };
 
     return buildNode(root);
+  }
+
+  // ── Snapshots ────────────────────────────────────────────────────────────
+
+  /**
+   * Persist an XState machine snapshot. Uses upsert so callers can call this
+   * after every transition without worrying about duplicate rows.
+   */
+  saveSnapshot(machineId: string, snapshot: unknown): void {
+    this.db
+      .query(
+        `INSERT INTO snapshots (machine_id, snapshot, updated_at)
+         VALUES ($machine_id, $snapshot, $updated_at)
+         ON CONFLICT(machine_id) DO UPDATE SET
+           snapshot   = excluded.snapshot,
+           updated_at = excluded.updated_at`,
+      )
+      .run({
+        $machine_id: machineId,
+        $snapshot: JSON.stringify(snapshot),
+        $updated_at: new Date().toISOString(),
+      });
+  }
+
+  /** Restore a previously saved snapshot, or return null if none exists. */
+  restoreSnapshot(machineId: string): unknown | null {
+    const row = this.db
+      .query("SELECT snapshot FROM snapshots WHERE machine_id = $machine_id")
+      .get({ $machine_id: machineId }) as { snapshot: string } | null;
+    return row ? JSON.parse(row.snapshot) : null;
   }
 
   // ── Lifecycle ────────────────────────────────────────────────────────────

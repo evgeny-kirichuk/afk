@@ -1,5 +1,6 @@
 export { loadAfkConfig } from "./config.ts";
 export * from "./executor.ts";
+export * from "./machine.ts";
 export * from "./parser.ts";
 export * from "./prompt-renderer.ts";
 export * from "./provider.ts";

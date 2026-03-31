@@ -143,14 +143,14 @@ describe("messages", () => {
     expect(msgs[2]!.role).toBe("human");
   });
 
-  test("getPendingHumanMessages filters by role", () => {
+  test("getHumanMessages filters by role", () => {
     store.createSession({ id: "s1", track_id: "t1", task_id: "t1", step: "implement", provider: "claude", model: "m" });
 
     store.addMessage("s1", "human", "Fix this");
     store.addMessage("s1", "agent", "Done");
     store.addMessage("s1", "human", "Also fix that");
 
-    const pending = store.getPendingHumanMessages("s1");
+    const pending = store.getHumanMessages("s1");
     expect(pending).toHaveLength(2);
     expect(pending.every((m) => m.role === "human")).toBe(true);
   });

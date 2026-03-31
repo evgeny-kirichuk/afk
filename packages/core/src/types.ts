@@ -134,7 +134,7 @@ export interface TrackState {
 
 export interface DecisionEntry {
   ts: string;
-  type: DecisionType;
+  type: string; // DecisionType values are expected but agents may produce any string
   task: string;
   [key: string]: unknown; // type-specific extra fields
 }

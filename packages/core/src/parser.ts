@@ -1,4 +1,4 @@
-import { rename } from "node:fs/promises";
+import { appendFile, rename } from "node:fs/promises";
 import { join } from "node:path";
 import { DecisionEntrySchema, HeartbeatSchema, StepOutputSchema } from "./schemas.ts";
 import type { DecisionEntry, HeartbeatData, StepInput, StepOutput, TaskEntry } from "./types.ts";
@@ -123,9 +123,7 @@ export async function readSpec(afkDir: string, taskId: string): Promise<string> 
 export async function appendDecision(trackDir: string, entry: DecisionEntry): Promise<void> {
   const parsed = DecisionEntrySchema.parse(entry);
   const path = join(trackDir, "decisions.jsonl");
-  const file = Bun.file(path);
-  const existing = (await file.exists()) ? await file.text() : "";
-  await Bun.write(path, `${existing}${JSON.stringify(parsed)}\n`);
+  await appendFile(path, `${JSON.stringify(parsed)}\n`);
 }
 
 export async function readHeartbeat(trackDir: string): Promise<HeartbeatData> {
@@ -143,7 +141,7 @@ export async function writeStepInput(trackDir: string, input: StepInput): Promis
 }
 
 export async function readStepOutput(trackDir: string): Promise<StepOutput> {
-  const path = join(trackDir, "step-output.json");
+  const path = join(trackDir, "step_complete.json");
   const raw = await Bun.file(path).json();
-  return StepOutputSchema.parse(raw) as unknown as StepOutput;
+  return StepOutputSchema.parse(raw);
 }
