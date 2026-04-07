@@ -43,3 +43,6 @@ afk/archive/
 afk/repo-map.json
 afk/inbox/.processed/
 .afk-worktrees/
+
+# artifacts and projects to research
+.aside
