@@ -1,4 +1,5 @@
 export { loadAfkConfig } from "./config.ts";
+export * from "./daemon/index.ts";
 export * from "./executor.ts";
 export * from "./machine.ts";
 export * from "./parser.ts";

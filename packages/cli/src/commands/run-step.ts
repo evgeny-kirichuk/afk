@@ -1,17 +1,27 @@
-import { defineCommand } from "citty";
-import { resolve, join } from "node:path";
+import { join, resolve } from "node:path";
 import {
-  SessionStore,
-  runStep,
   detectProviders,
-  resolveModel,
   type ProviderName,
+  resolveModel,
+  runStep,
+  SessionStore,
   type StepName,
 } from "@afk/core";
+import { defineCommand } from "citty";
 
 const VALID_STEPS: StepName[] = [
-  "prep", "pick", "analyze", "test_plan", "implement",
-  "cleanup", "simplify", "review", "distill", "validate", "commit", "explore",
+  "prep",
+  "pick",
+  "analyze",
+  "test_plan",
+  "implement",
+  "cleanup",
+  "simplify",
+  "review",
+  "distill",
+  "validate",
+  "commit",
+  "explore",
 ];
 
 export default defineCommand({
@@ -104,7 +114,11 @@ export default defineCommand({
       modelId = args.model;
     } else if (!modelId!) {
       const available = new Set<ProviderName>([providerName]);
-      const resolved = resolveModel(args.tier as "frontier" | "standard" | "fast", [providerName], available);
+      const resolved = resolveModel(
+        args.tier as "frontier" | "standard" | "fast",
+        [providerName],
+        available,
+      );
       modelId = resolved?.model ?? "default";
     }
 

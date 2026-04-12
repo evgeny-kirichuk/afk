@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/bun/tsconfig.json",
   "compilerOptions": {
+    "types": ["bun"],
     "paths": {
       "@afk/core": ["./packages/core/src/index.ts"]
     }

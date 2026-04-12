@@ -23,6 +23,8 @@ Durable decisions that apply across all phases:
 
 ## Phase 1: Daemon HTTP Skeleton + CLI Init
 
+**Status**: ✅ Complete
+
 **User stories**: US 2, 13
 
 ### What to build
@@ -31,14 +33,23 @@ A Bun.serve() HTTP+SSE server that starts on localhost and accepts basic command
 
 ### Acceptance criteria
 
-- [ ] `afk daemon start` launches HTTP+SSE server on a configurable localhost port
-- [ ] `afk daemon stop` sends shutdown command and server exits cleanly
-- [ ] `afk daemon status` reports whether daemon is running
-- [ ] `afk init` registers current git repo in global DB (`~/.afk/afk.db`) with name, path, and registration time
-- [ ] `afk status` lists all registered repos (name, path, status)
-- [ ] SSE endpoint (`GET /events`) streams server lifecycle events (started, repo-registered) to connected clients
-- [ ] CLI commands fail gracefully when daemon is not running
-- [ ] REST endpoints return structured JSON responses
+- [x] `afk daemon start` launches HTTP+SSE server on a configurable localhost port
+- [x] `afk daemon stop` sends shutdown command and server exits cleanly
+- [x] `afk daemon status` reports whether daemon is running
+- [x] `afk init` registers current git repo in global DB (`~/.afk/afk.db`) with name, path, and registration time
+- [x] `afk status` lists all registered repos (name, path, status)
+- [x] SSE endpoint (`GET /events`) streams server lifecycle events (started, repo-registered) to connected clients
+- [x] CLI commands fail gracefully when daemon is not running
+- [x] REST endpoints return structured JSON responses
+
+### Implementation notes
+
+- Daemon module: `packages/core/src/daemon/` — `EventBus` (SSE pub/sub), `GlobalStore` (SQLite repo registry at `~/.afk/afk.db`), `pid.ts` (PID file lifecycle at `~/.afk/daemon.pid` with stale-process detection), `server.ts` (`Bun.serve()` with REST + SSE)
+- CLI: `packages/cli/src/commands/daemon.ts` (`start`/`stop`/`status`), `client.ts` (thin HTTP client), `daemon-entry.ts` (detached background entry point)
+- `init` is idempotent via `INSERT OR IGNORE` — returns `{repo, created}`; CLI prints `Registered …` on first run, `Repo already registered: …` thereafter
+- SSE keepalive comments every 15s, `Bun.serve` `idleTimeout: 0` to hold connections open for local clients
+- Foreground and detached daemon paths both clean up the PID file on `SIGINT`/`SIGTERM`
+- Deferred: CORS headers (needed in Phase 29 for Tauri desktop), spawn-poll with timeout instead of fixed 500ms sleep, distinguishing SSE subscribers from other `eventBus` listeners in the status count
 
 ---
 
